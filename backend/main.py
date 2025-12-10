@@ -13,8 +13,15 @@ from ai_agent import HealthAIAgent
 app = FastAPI(title="Saúde+ Preventiva API")
 
 # Inicializar agente de IA
-# use_openai=True para usar OpenAI API (requer OPENAI_API_KEY no ambiente)
-ai_agent = HealthAIAgent(use_openai=False)
+# Detecta automaticamente se Ollama está disponível
+use_ollama = bool(os.getenv("OLLAMA_HOST")) or os.path.exists("/usr/local/bin/ollama")
+ai_agent = HealthAIAgent(use_ollama=use_ollama)
+
+# Log do modo de operação
+if use_ollama:
+    print("🤖 AI Agent: Usando Ollama (modelo local) para análises enriquecidas")
+else:
+    print("🤖 AI Agent: Usando análise ML baseada em padrões (Ollama não configurado)")
 
 # Configuração de CORS
 app.add_middleware(

@@ -8,12 +8,12 @@ from typing import Dict, List, Tuple, Optional
 import os
 from datetime import datetime
 
-# Configuração opcional para OpenAI (se disponível)
+# Configuração para Ollama (modelo local)
 try:
-    from openai import OpenAI
-    OPENAI_AVAILABLE = True
+    import ollama
+    OLLAMA_AVAILABLE = True
 except ImportError:
-    OPENAI_AVAILABLE = False
+    OLLAMA_AVAILABLE = False
 
 
 class HealthAIAgent:
@@ -22,22 +22,28 @@ class HealthAIAgent:
     Utiliza algoritmos de ML e análise baseada em padrões do dataset Sleep Health and Lifestyle.
     """
     
-    def __init__(self, use_openai: bool = False):
+    def __init__(self, use_ollama: bool = True):
         """
         Inicializa o agente de IA.
         
         Args:
-            use_openai: Se True, utiliza OpenAI API para análises mais sofisticadas
+            use_ollama: Se True, utiliza Ollama (modelo local) para análises mais sofisticadas
         """
-        self.use_openai = use_openai and OPENAI_AVAILABLE
-        self.openai_client = None
+        self.use_ollama = use_ollama and OLLAMA_AVAILABLE
+        self.ollama_client = None
         
-        if self.use_openai:
-            api_key = os.getenv("OPENAI_API_KEY")
-            if api_key:
-                self.openai_client = OpenAI(api_key=api_key)
-            else:
-                self.use_openai = False
+        if self.use_ollama:
+            ollama_host = os.getenv("OLLAMA_HOST", "http://host.docker.internal:11434")
+            self.ollama_model = "llama3.2"
+            self.ollama_host = ollama_host
+            try:
+                # Test connection
+                ollama.Client(host=ollama_host).list()
+                print(f"🤖 AI Agent: Usando Ollama (modelo local {self.ollama_model}) - {ollama_host}")
+            except Exception as e:
+                print(f"⚠️ AI Agent: Erro ao conectar com Ollama: {e}")
+                print("⚠️ AI Agent: Usando apenas análise local baseada em ML")
+                self.use_ollama = False
         
         # Inicializar modelo de ML baseado em padrões de saúde
         self._initialize_health_patterns()
@@ -155,12 +161,18 @@ class HealthAIAgent:
         # Gerar dicas personalizadas
         dicas = self._generate_ai_tips(dados, areas_atencao, areas_analysis)
         
-        # Se OpenAI disponível, enriquecer análise
-        if self.use_openai and self.openai_client:
+        # Se Ollama disponível, enriquecer análise
+        if self.use_ollama:
             try:
-                mensagem = self._enrich_with_openai(dados, score_geral, areas_analysis)
+                print(f"🤖 Enriquecendo análise com Ollama...")
+                enriched_message = self._enrich_with_ollama(dados, score_geral, areas_analysis)
+                if enriched_message:
+                    print(f"✅ Mensagem enriquecida: {enriched_message[:100]}...")
+                    mensagem = enriched_message
+                else:
+                    print(f"⚠️ Ollama não retornou mensagem")
             except Exception as e:
-                print(f"OpenAI enrichment failed: {e}")
+                print(f"❌ Ollama enrichment failed: {e}")
         
         return {
             "score_geral": score_geral,
@@ -591,15 +603,15 @@ class HealthAIAgent:
         
         return dicas[:8]  # Máximo 8 dicas
     
-    def _enrich_with_openai(
+    def _enrich_with_ollama(
         self, 
         dados: Dict, 
         score: int,
         areas_analysis: Dict
     ) -> str:
-        """Enriquece a mensagem usando OpenAI (opcional)"""
+        """Enriquece a mensagem usando Ollama (modelo local)"""
         try:
-            # Preparar contexto para o GPT
+            # Preparar contexto para o Ollama
             context = f"""
             Análise de saúde de {dados['nome']}, {dados['idade']} anos.
             Score geral: {score}/100
@@ -612,21 +624,22 @@ class HealthAIAgent:
             prompt = f"""
             {context}
             
-            Gere uma mensagem motivacional e personalizada em português (máx 2 frases) 
+            Você é um assistente de saúde empático e motivacional.
+            Gere uma mensagem motivacional e personalizada em português (máximo 2-3 frases) 
             que seja empática e encoraje mudanças positivas nos hábitos de saúde.
+            Seja específico sobre as áreas que precisam de atenção.
+            Responda apenas a mensagem, sem explicações adicionais.
             """
             
-            response = self.openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Você é um assistente de saúde empático e motivacional."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=100,
-                temperature=0.7
+            client = ollama.Client(host=self.ollama_host)
+            response = client.generate(
+                model=self.ollama_model,
+                prompt=prompt
             )
             
-            return response.choices[0].message.content.strip()
+            if response and 'response' in response:
+                return response['response'].strip()
+            return None
         except Exception as e:
-            print(f"OpenAI enrichment error: {e}")
+            print(f"Ollama enrichment error: {e}")
             return None

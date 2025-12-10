@@ -23,7 +23,7 @@ Saúde+ Preventiva é uma aplicação que permite aos usuários:
   - Scoring inteligente com curvas gaussianas e padrões ideais
   - Geração automática de metas personalizadas
   - Sistema de insights contextualizados
-  - Suporte opcional para OpenAI GPT (mensagens enriquecidas)
+  - **✨ Suporte para Ollama (modelos locais)**: Mensagens personalizadas geradas por IA local usando LLaMA, Mistral, etc.
 - **API RESTful**: Endpoints para questionário, diagnóstico, metas e progresso
 
 ### Frontend (React + Vite)
@@ -171,7 +171,38 @@ docker-compose down
 - Backend: http://localhost:8000
 - Documentação da API: http://localhost:8000/docs
 
-Para mais detalhes sobre Docker, consulte [DOCKER.md](DOCKER.md)
+#### 🤖 AI Enhancement com Ollama (Opcional)
+
+Para análises ainda mais personalizadas, você pode usar Ollama com modelos locais:
+
+1. **Instale Ollama** (se ainda não tiver):
+   ```bash
+   brew install ollama  # macOS
+   ```
+
+2. **Inicie o serviço Ollama**:
+   ```bash
+   ollama serve
+   ```
+
+3. **Baixe o modelo** (em outro terminal):
+   ```bash
+   ollama pull llama3.2
+   ```
+
+4. **Configure a variável de ambiente** no arquivo `.env`:
+   ```env
+   OLLAMA_HOST=http://host.docker.internal:11434
+   ```
+
+5. **Reinicie os containers**:
+   ```bash
+   docker-compose restart backend
+   ```
+
+Agora as mensagens de diagnóstico serão geradas por IA local! 🎉
+
+Para mais detalhes, consulte [OLLAMA_SETUP.md](OLLAMA_SETUP.md) e [DOCKER.md](DOCKER.md)
 
 ### 💻 Opção 2: Desenvolvimento Local
 
