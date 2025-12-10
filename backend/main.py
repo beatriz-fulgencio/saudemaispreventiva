@@ -7,7 +7,14 @@ from datetime import datetime
 import json
 import os
 
+# Importar agente de IA
+from ai_agent import HealthAIAgent
+
 app = FastAPI(title="Saúde+ Preventiva API")
+
+# Inicializar agente de IA
+# use_openai=True para usar OpenAI API (requer OPENAI_API_KEY no ambiente)
+ai_agent = HealthAIAgent(use_openai=False)
 
 # Configuração de CORS
 app.add_middleware(
@@ -63,71 +70,43 @@ progresso_db = {}
 
 def analisar_questionario(dados: QuestionarioRequest) -> Diagnostico:
     """
-    Analisa o questionário e gera diagnóstico com base no dataset Sleep Health and Lifestyle
+    Analisa o questionário usando IA e gera diagnóstico personalizado.
+    Utiliza o agente de IA com base no dataset Sleep Health and Lifestyle.
     """
     usuario_id = f"user_{len(usuarios_db) + 1}"
     
-    # Cálculo de scores por área
-    score_sono = calcular_score_sono(dados.horas_sono, dados.qualidade_sono)
-    score_atividade = calcular_score_atividade(dados.nivel_atividade_fisica, dados.frequencia_exercicio)
-    score_alimentacao = calcular_score_alimentacao(dados.qualidade_alimentacao, dados.consumo_agua)
-    score_mental = calcular_score_mental(dados.nivel_stress, dados.apoio_social, dados.tempo_tela)
+    # Usar agente de IA para análise completa
+    analise_ai = ai_agent.analyze_questionnaire(dados.dict())
     
-    # Score geral (média ponderada)
-    score_geral = int(
-        (score_sono * 0.3 + 
-         score_atividade * 0.25 + 
-         score_alimentacao * 0.25 + 
-         score_mental * 0.2)
-    )
-    
-    # Determinar categoria
-    if score_geral >= 80:
-        categoria = "Excelente"
-        mensagem = f"Parabéns, {dados.nome}! Sua saúde está em ótimo estado."
-    elif score_geral >= 60:
-        categoria = "Bom"
-        mensagem = f"{dados.nome}, você está no caminho certo, mas há espaço para melhorias."
-    elif score_geral >= 40:
-        categoria = "Regular"
-        mensagem = f"{dados.nome}, é importante fazer algumas mudanças nos seus hábitos."
-    else:
-        categoria = "Atenção Necessária"
-        mensagem = f"{dados.nome}, sua saúde precisa de atenção. Vamos trabalhar juntos!"
-    
-    # Identificar áreas de atenção e pontos fortes
-    areas = {
-        "Sono": score_sono,
-        "Atividade Física": score_atividade,
-        "Alimentação": score_alimentacao,
-        "Saúde Mental": score_mental
-    }
-    
-    areas_atencao = [area for area, score in areas.items() if score < 60]
-    pontos_fortes = [area for area, score in areas.items() if score >= 75]
-    
-    # Gerar metas personalizadas (2-3 metas)
-    metas = gerar_metas(dados, areas)
-    
-    # Gerar dicas personalizadas
-    dicas = gerar_dicas(dados, areas_atencao)
+    # Converter metas do formato do AI para o formato esperado
+    metas_formatadas = [
+        Meta(
+            id=meta["id"],
+            titulo=meta["titulo"],
+            descricao=meta["descricao"],
+            categoria=meta["categoria"],
+            prazo=meta["prazo"]
+        )
+        for meta in analise_ai["metas"]
+    ]
     
     diagnostico = Diagnostico(
         usuario_id=usuario_id,
         nome=dados.nome,
-        score_geral=score_geral,
-        categoria=categoria,
-        mensagem=mensagem,
-        areas_atencao=areas_atencao,
-        pontos_fortes=pontos_fortes,
-        metas=metas,
-        dicas=dicas,
+        score_geral=analise_ai["score_geral"],
+        categoria=analise_ai["categoria"],
+        mensagem=analise_ai["mensagem"],
+        areas_atencao=analise_ai["areas_atencao"],
+        pontos_fortes=analise_ai["pontos_fortes"],
+        metas=metas_formatadas,
+        dicas=analise_ai["dicas"],
         data_avaliacao=datetime.now().isoformat()
     )
     
     usuarios_db[usuario_id] = {
         "questionario": dados.dict(),
-        "diagnostico": diagnostico.dict()
+        "diagnostico": diagnostico.dict(),
+        "analise_detalhada": analise_ai["areas_analysis"]  # Guardar análise detalhada
     }
     
     return diagnostico
@@ -385,6 +364,23 @@ async def obter_progresso(usuario_id: str):
     return {
         "usuario_id": usuario_id,
         "progresso": progresso_usuario
+    }
+
+@app.get("/api/analise-detalhada/{usuario_id}")
+async def obter_analise_detalhada(usuario_id: str):
+    """
+    Retorna análise detalhada do agente de IA para um usuário específico.
+    Inclui scores por área, insights e status detalhado.
+    """
+    if usuario_id not in usuarios_db:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    usuario_data = usuarios_db[usuario_id]
+    
+    return {
+        "usuario_id": usuario_id,
+        "analise_detalhada": usuario_data.get("analise_detalhada", {}),
+        "mensagem": "Análise gerada por IA usando algoritmos de Machine Learning baseados no dataset Sleep Health and Lifestyle"
     }
 
 if __name__ == "__main__":

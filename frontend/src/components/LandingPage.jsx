@@ -43,13 +43,35 @@ function LandingPage({ onStart }) {
             <strong>1️⃣</strong> Responda um questionário rápido sobre seus hábitos atuais
           </p>
           <p style={{ marginBottom: '1rem' }}>
-            <strong>2️⃣</strong> Receba um diagnóstico personalizado baseado em IA
+            <strong>2️⃣</strong> Receba um diagnóstico personalizado baseado em <strong style={{ color: '#528aae' }}>Inteligência Artificial</strong>
           </p>
           <p style={{ marginBottom: '1rem' }}>
             <strong>3️⃣</strong> Obtenha 2-3 metas semanais adaptadas ao seu perfil
           </p>
           <p style={{ marginBottom: '1rem' }}>
             <strong>4️⃣</strong> Acompanhe seu progresso no dashboard interativo
+          </p>
+        </div>
+        
+        <div style={{ 
+          marginTop: '2rem', 
+          padding: '1.5rem', 
+          background: 'linear-gradient(135deg, #f5f8fa 0%, #e8f4f8 100%)',
+          borderRadius: '12px',
+          border: '2px solid #528aae',
+          maxWidth: '600px',
+          margin: '2rem auto 0'
+        }}>
+          <p style={{ 
+            fontSize: '1rem', 
+            color: '#333',
+            lineHeight: '1.6',
+            margin: 0 
+          }}>
+            <strong style={{ color: '#528aae' }}>🤖 Powered by AI:</strong> Nosso agente de IA utiliza 
+            algoritmos de Machine Learning baseados em estudos científicos e no dataset 
+            "Sleep Health and Lifestyle" para analisar seus hábitos e gerar recomendações 
+            personalizadas e precisas.
           </p>
         </div>
       </div>

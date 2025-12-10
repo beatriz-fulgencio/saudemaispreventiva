@@ -6,19 +6,24 @@ Uma plataforma web MVP para ajudar estudantes universitários e jovens profissio
 
 Saúde+ Preventiva é uma aplicação que permite aos usuários:
 - Preencher um questionário rápido sobre seus hábitos de saúde
-- Receber um diagnóstico personalizado baseado em análise de dados
+- Receber um diagnóstico personalizado **baseado em Inteligência Artificial**
 - Obter 2-3 metas semanais adaptadas ao seu perfil
 - Acompanhar o progresso através de um dashboard interativo
 - Receber dicas personalizadas para melhorar sua qualidade de vida
 
-O sistema utiliza princípios do dataset "Sleep Health and Lifestyle" para gerar recomendações inteligentes.
+🤖 **Powered by AI**: O sistema utiliza um **agente de IA** com algoritmos de Machine Learning baseados em evidências científicas e no dataset "Sleep Health and Lifestyle" para gerar recomendações inteligentes e personalizadas.
 
 ## 🏗️ Arquitetura
 
 ### Backend (Python + FastAPI)
 - **Framework**: FastAPI
 - **Banco de Dados**: SQLite (em memória para MVP)
-- **IA/ML**: Análise baseada em algoritmos de scoring personalizado
+- **🤖 IA/ML**: Agente de IA com algoritmos de Machine Learning
+  - Análise multi-dimensional de saúde (Sono, Atividade, Alimentação, Mental)
+  - Scoring inteligente com curvas gaussianas e padrões ideais
+  - Geração automática de metas personalizadas
+  - Sistema de insights contextualizados
+  - Suporte opcional para OpenAI GPT (mensagens enriquecidas)
 - **API RESTful**: Endpoints para questionário, diagnóstico, metas e progresso
 
 ### Frontend (React + Vite)
@@ -33,6 +38,8 @@ O sistema utiliza princípios do dataset "Sleep Health and Lifestyle" para gerar
 saudemaispreventiva/
 ├── backend/
 │   ├── main.py              # API FastAPI principal
+│   ├── ai_agent.py          # 🤖 Agente de IA para análise
+│   ├── AI_AGENT_README.md   # Documentação do agente de IA
 │   └── requirements.txt     # Dependências Python
 ├── frontend/
 │   ├── src/
@@ -46,6 +53,7 @@ saudemaispreventiva/
 │   │   └── main.jsx
 │   ├── package.json
 │   └── vite.config.js
+├── API_DOCUMENTATION.md
 └── README.md
 ```
 

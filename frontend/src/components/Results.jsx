@@ -53,8 +53,16 @@ function Results({ diagnostico, onViewDashboard, onBackToLanding }) {
       {/* Metas Semanais */}
       <div className="section">
         <h3>🎯 Suas Metas para Esta Semana</h3>
-        <p style={{ color: '#666', marginBottom: '1.5rem' }}>
+        <p style={{ color: '#666', marginBottom: '0.8rem' }}>
           Concentre-se nestas {diagnostico.metas.length} metas para começar sua jornada de transformação:
+        </p>
+        <p style={{ 
+          color: '#528aae', 
+          fontSize: '0.9rem', 
+          marginBottom: '1.5rem',
+          fontStyle: 'italic'
+        }}>
+          🤖 Metas geradas por IA baseadas na sua análise personalizada
         </p>
         <div className="goals-list">
           {diagnostico.metas.map((meta) => (
