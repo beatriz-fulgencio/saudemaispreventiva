@@ -148,9 +148,36 @@ Retorna o progresso de todas as metas de um usuário.
 
 ## 🚀 Como Executar
 
+### 🐳 Opção 1: Docker (Recomendado)
+
+A maneira mais fácil e rápida de executar o projeto:
+
+```bash
+# Construir e iniciar os containers
+docker-compose up -d
+
+# Verificar se os serviços estão rodando
+docker-compose ps
+
+# Ver logs
+docker-compose logs -f
+
+# Parar os serviços
+docker-compose down
+```
+
+**Acesse**:
+- Frontend: http://localhost/
+- Backend: http://localhost:8000
+- Documentação da API: http://localhost:8000/docs
+
+Para mais detalhes sobre Docker, consulte [DOCKER.md](DOCKER.md)
+
+### 💻 Opção 2: Desenvolvimento Local
+
 ### Pré-requisitos
-- Python 3.8+
-- Node.js 16+
+- Python 3.11+ (recomendado 3.11 para evitar problemas com pandas)
+- Node.js 20.19+ ou 22.12+
 - npm ou yarn
 
 ### Backend
@@ -201,13 +228,35 @@ O frontend estará disponível em `http://localhost:5173`
 
 ## 🧪 Testando a Aplicação
 
-1. Certifique-se de que o backend está rodando em `http://localhost:8000`
-2. Certifique-se de que o frontend está rodando em `http://localhost:5173`
+### Testes Automatizados (Docker)
+
+Se você estiver usando Docker, execute o script de testes automatizado:
+
+```bash
+./test-docker.sh
+```
+
+Este script testa todos os endpoints da API e a acessibilidade do frontend.
+
+### Testes Manuais
+
+1. Certifique-se de que o backend está rodando
+   - Docker: `http://localhost:8000`
+   - Local: `http://localhost:8000`
+2. Certifique-se de que o frontend está rodando
+   - Docker: `http://localhost/`
+   - Local: `http://localhost:5173`
 3. Acesse o frontend no navegador
 4. Clique em "Começar Avaliação"
 5. Preencha o questionário com suas informações
 6. Veja seu diagnóstico personalizado
 7. Explore o dashboard de progresso
+
+### Documentação da API
+
+Acesse a documentação interativa em:
+- Docker: `http://localhost:8000/docs`
+- Local: `http://localhost:8000/docs`
 
 ## 🎨 Design e Identidade Visual
 

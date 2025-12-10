@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico - Saúde+ Preventiva</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Diagnóstico do Sistema</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="runTests()">Executar Testes</button>
+    <button onclick="window.location.href='/'">Ir para Aplicação Principal</button>
+    
+    <script>
+        async function runTests() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Executando testes...</p>';
+            
+            const tests = [];
+            
+            // Test 1: Backend connectivity
+            try {
+                const response = await fetch('http://localhost:8000/');
+                const data = await response.json();
+                tests.push({
+                    name: 'Conexão com Backend',
+                    success: true,
+                    message: `✅ Backend respondendo: ${data.mensagem}`
+                });
+            } catch (error) {
+                tests.push({
+                    name: 'Conexão com Backend',
+                    success: false,
+                    message: `❌ Erro: ${error.message}`
+                });
+            }
+            
+            // Test 2: API endpoint
+            try {
+                const response = await fetch('http://localhost:8000/api/questionario', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nome: 'Teste',
+                        idade: 25,
+                        horas_sono: 7,
+                        qualidade_sono: 7,
+                        nivel_atividade_fisica: 3,
+                        frequencia_exercicio: 3,
+                        qualidade_alimentacao: 6,
+                        consumo_agua: 2,
+                        nivel_stress: 5,
+                        tempo_tela: 5,
+                        apoio_social: 7
+                    })
+                });
+                const data = await response.json();
+                tests.push({
+                    name: 'API Questionário',
+                    success: true,
+                    message: `✅ Questionário processado. Score: ${data.score_geral}`
+                });
+            } catch (error) {
+                tests.push({
+                    name: 'API Questionário',
+                    success: false,
+                    message: `❌ Erro: ${error.message}`
+                });
+            }
+            
+            // Display results
+            results.innerHTML = tests.map(test => `
+                <div class="test ${test.success ? 'success' : 'error'}">
+                    <h3>${test.name}</h3>
+                    <p>${test.message}</p>
+                </div>
+            `).join('');
+            
+            // Add summary
+            const passed = tests.filter(t => t.success).length;
+            results.innerHTML += `
+                <div class="test ${passed === tests.length ? 'success' : 'error'}">
+                    <h3>Resumo</h3>
+                    <p>${passed}/${tests.length} testes passaram</p>
+                </div>
+            `;
+        }
+        
+        // Run tests automatically
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>
